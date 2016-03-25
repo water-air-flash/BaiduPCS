@@ -2451,6 +2451,23 @@ static void usage_who()
 	printf("  %s who\n", app_name);
 }
 
+/*打印share命令用法*/
+static void usage_share()
+{
+	version();
+	printf("\nUsage: %s share [-h] <remote file> <4-letter password> \n", app_name);
+	printf("\nDescription:\n");
+	printf("  Create share link of single file or directory\n");
+	printf("  * File will be shared in private mode which need a vaild password.\n");
+	printf("\nOptions:\n");
+	printf("  -h    Print the usage.\n");
+	printf("\nSamples:\n");
+	printf("  %s share -h\n", app_name);
+	printf("  %s share \"/myfile.txt\" 30cm\n", app_name);
+	printf("  %s share \"/FavouriteBooks/\" tsdd\n", app_name);
+}
+
+
 /*打印用法*/
 static void usage()
 {
@@ -2463,6 +2480,7 @@ static void usage()
 	printf("  The %s provided AES encryption, which can protected your data.\n", app_name);
 	printf("  The %s is open source, and published on MIT. \n", app_name);
 	printf("  Please see https://github.com/GangZhuo/baidupcs. \n");
+	printf("  Enhanced by bbscool. \n");
 	printf("\nOptions:\n");
 	printf("  --context=<file path>  Specify context.\n");
 	printf("\nCommands:\n");
@@ -2487,6 +2505,7 @@ static void usage()
 	printf("  rename   Rename the file|directory\n");
 	printf("  set      Change the context, you can print the context by 'context' command\n");
 	printf("  search   Search the files in the specify directory\n");
+	printf("  share    Create share link of single file or directoy\n");
 	printf("  synch    Synch between local and net disk. You can 'compare' first.\n");
 	printf("  upload   Upload the file\n");
 	printf("  version  Print the version\n");
@@ -5070,6 +5089,58 @@ static int cmd_context(ShellContext *context, struct args *arg)
 	pcs_free(json);
 	return 0;
 }
+/*File Share*/
+static int cmd_share(ShellContext * context, struct args *arg){
+
+	int is_force = 0;
+	char *path = NULL, *errmsg = NULL;
+	char *relPath = NULL;
+	char *shareUrl = NULL;
+	char *pass = NULL;
+	PcsFileInfo *meta;
+
+	if (test_arg(arg, 2, 2, "h", "help", NULL)) {
+		usage_share();
+		return -1;
+	}
+	if (has_opts(arg, "h", "help", NULL)) {
+		usage_share();
+		return 0;
+	}
+
+	is_force = has_opt(arg, "f");
+	relPath = arg->argv[0];
+	pass = arg->argv[1];
+	//检查是否已经登录
+	if (!is_login(context, NULL)) {
+		return -1;
+	}
+
+	path = combin_net_disk_path(context->workdir, relPath);
+	if (strcmp(path, "/") == 0) {
+		fprintf(stderr, "Error: Can't share root directory. \n");
+		pcs_free(path);
+		return -1;
+	}
+
+	/*检查网盘文件 - 开始*/
+	meta = pcs_meta(context->pcs, path);
+	if (!meta) {
+		fprintf(stderr, "Error: The remote file not exist, or have error: %s\n", pcs_strerror(context->pcs));
+		pcs_free(path);
+		return -1;
+	}
+	/*检查网盘文件 - 结束*/
+
+	pcs_share_single(context->pcs, &shareUrl, meta->fs_id, pass);
+
+	printf("Info: Your share url is : %s \n", shareUrl);
+	pcs_free(shareUrl);
+	pcs_free(path);
+	pcs_fileinfo_destroy(meta);
+	if (errmsg) pcs_free(errmsg);
+	return 0;
+}
 
 /*下载*/
 static int cmd_download(ShellContext *context, struct args *arg)
@@ -6613,6 +6684,9 @@ static int exec_cmd(ShellContext *context, struct args *arg)
 	else if (strcmp(cmd, "help") == 0
 		|| strcmp(cmd, "?") == 0) {
 		rc = cmd_help(context, arg);
+	}
+	else if (strcmp(cmd, "share") == 0){
+		rc = cmd_share(context, arg);
 	}
 	else {
 		usage();

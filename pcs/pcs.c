@@ -34,14 +34,15 @@
 								   || (ch) == '_'\
 								   || (ch) == '-')
 
-#define URL_HOME			"http://www.baidu.com"
-#define URL_DISK_HOME		"http://pan.baidu.com/disk/home"
+#define URL_HOME			"https://www.baidu.com"
+#define URL_DISK_HOME		"https://pan.baidu.com/disk/home"
 #define URL_PASSPORT_API	"https://passport.baidu.com/v2/api/?"
 #define URL_GET_PUBLIC_KEY	"https://passport.baidu.com/v2/getpublickey?"
 #define URL_PASSPORT_LOGOUT	"https://passport.baidu.com/?logout&u=http://pan.baidu.com"
 #define URL_CAPTCHA			"https://passport.baidu.com/cgi-bin/genimage?"
-#define URL_PAN_API			"http://pan.baidu.com/api/"
-#define URL_PCS_REST		"http://c.pcs.baidu.com/rest/2.0/pcs/file"
+#define URL_PAN_API			"https://pan.baidu.com/api/"
+#define URL_PCS_REST		"https://c.pcs.baidu.com/rest/2.0/pcs/file"
+#define URL_PCS_WEBSHARE	"https://pan.baidu.com/share/"
 
 struct pcs {
 	char		*username;
@@ -349,6 +350,31 @@ static char *pcs_build_pan_api_url_v(Pcs handle, const char *action, va_list arg
 	return url;
 }
 
+
+/*pcs_build_pan_api_url_s()的矢量模式*/
+static char *pcs_build_pan_api_url_s_v(Pcs handle, const char *action, va_list args)
+{
+	struct pcs *pcs = (struct pcs *)handle;
+	char *baseurl, *url, *tt;
+	tt = pcs_utils_sprintf("%d", (int)time(0));
+	baseurl = (char *)alloca(strlen(URL_PCS_WEBSHARE) + strlen(action) + 1);
+	strcpy(baseurl, URL_PCS_WEBSHARE);
+	strcat(baseurl, action);
+	baseurl = pcs_http_build_url(pcs->http, baseurl,
+		"channel", "chunlei",
+		"clienttype", "0",
+		"web", "1",
+		"app_id", "250528",
+		"bdstoken", pcs->bdstoken,
+		NULL);
+	pcs_free(tt);
+	if (!baseurl)
+		return NULL;
+	url = pcs_http_build_url_v(pcs->http, baseurl, args);
+	pcs_free(baseurl);
+	return url;
+}
+
 /*传入action，即参数，拼接出最终字符串。参数以(key, value)对的形式传入，最后传入一个NULL表示终止
 例：pcs_build_pan_api_url(handle, "list", k1, v1, k2, v2, NULL); 
 //将返回：http://pan.baidu.com/api/list?channel=chunlei&clienttype=0&web=1&t=189343343&bdstoken=dfjewdfe&k1=v1&k2=v2
@@ -360,6 +386,20 @@ static char *pcs_build_pan_api_url(Pcs handle, const char *action, ...)
     va_start(args, action);
 	url = pcs_build_pan_api_url_v(handle, action, args);
     va_end(args);
+	return url;
+}
+
+/*Exclusively for Share function.
+例：pcs_build_pan_api_url_s(handle, "set", k1, v1, k2, v2, NULL); 
+//将返回：https://pan.baidu.com/share/set?channel=chunlei&clienttype=0&web=1&t=189343343&bdstoken=dfjewdfe&k1=v1&k2=v2
+*/
+static char *pcs_build_pan_api_url_s(Pcs handle, const char *action, ...)
+{
+	char *url;
+	va_list args;
+	va_start(args, action);
+	url = pcs_build_pan_api_url_s_v(handle, action, args);
+	va_end(args);
 	return url;
 }
 
@@ -1712,6 +1752,77 @@ PCS_API PcsRes pcs_logout(Pcs handle)
 	else
 		pcs_set_errmsg(handle, "Can't logout. Http Code: %d", http_code);
 	return PCS_FAIL;
+}
+
+PCS_API PcsRes pcs_share_single(Pcs handle, char** shareUrl, uint64_t fid, char* pwd)
+{
+	struct pcs *pcs = (struct pcs *)handle;
+	cJSON *json, *item;
+	char *url, *html, *postdata;
+	char *shareList;
+	int error;
+
+	shareList = pcs_utils_sprintf("[%" PRIu64 "]", fid);
+	pcs_clear_errmsg(handle);
+	url = pcs_build_pan_api_url_s(handle, "set", NULL);
+	if (!url) {
+		pcs_set_errmsg(handle, "Can't build the url.");
+		return PCS_BUILD_URL;
+	}
+	postdata = pcs_http_build_post_data(pcs->http,
+		"schannel", "4",
+		"channel_list", "[]",
+		"fid_list", shareList,
+		"pwd", pwd,
+		NULL);
+	if (!postdata) {
+		pcs_set_errmsg(handle, "Can't build the post data.");
+		pcs_free(url);
+		return PCS_BUILD_POST_DATA;
+	}
+	html = pcs_http_post(pcs->http, url, postdata, PcsTrue);
+	pcs_free(url);
+	pcs_free(postdata);
+	pcs_free(shareList);
+	if (!html) {
+		const char *errmsg = pcs_http_strerror(pcs->http);
+		if (errmsg)
+			pcs_set_serrmsg(handle, errmsg);
+		else
+			pcs_set_errmsg(handle, "Can't get response from the remote server.");
+		return PCS_NETWORK_ERROR;
+	}
+
+	json = cJSON_Parse(html);
+	if (!json) {
+		pcs_set_errmsg(handle, "Can't parse the response as json. Response: %s", html);
+		return PCS_WRONG_RESPONSE;
+	}
+
+	item = cJSON_GetObjectItem(json, "errno");
+	if (!item) {
+		pcs_set_errmsg(handle, "Can't read res.errno. Response: %s", html);
+		cJSON_Delete(json);
+		return PCS_WRONG_RESPONSE;
+	}
+	error = item->valueint;
+	if (error != 0) {
+		pcs_set_errmsg(handle, "Unknown error. Response: %s", html);
+		cJSON_Delete(json);
+		return PCS_FAIL;
+	}
+
+	item = cJSON_GetObjectItem(json, "shorturl");
+	if (!item) {
+		pcs_set_errmsg(handle, "Can't read good. Response: %s", html);
+		cJSON_Delete(json);
+		return PCS_WRONG_RESPONSE;
+	}
+
+	*shareUrl = (char*) pcs_utils_sprintf("%s", item->valuestring);
+	cJSON_Delete(json);
+
+	return PCS_OK;
 }
 
 PCS_API PcsRes pcs_quota(Pcs handle, int64_t *quota, int64_t *used)

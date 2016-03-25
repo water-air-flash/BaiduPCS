@@ -195,6 +195,15 @@ PCS_API PcsRes pcs_login(Pcs handle);
 PCS_API PcsRes pcs_logout(Pcs handle);
 
 /*
+* Share a single file/dir by fid
+*   shareUrl: Buffer to store share url
+*   fid  fileId
+*   pwd  share Password
+* 成功后返回PCS_OK，失败则返回错误编号
+*/
+PCS_API PcsRes pcs_share_single(Pcs handle, char** shareUrl, uint64_t fid, char* pwd);
+
+/*
  * 获取网盘配额
  *   quota 用于接收总大小
  *   used  用于接收已使用值
