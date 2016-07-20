@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\JNI_BaiduPCS.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\arg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dir.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\hashtable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rb_tree\misc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rb_tree\red_black_tree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\rb_tree\stack.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shell.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utf8.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\version.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\cJSON.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\openssl_aes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\openssl_md5.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\openssl_rsa.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs_defs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs_fileinfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs_http.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs_mem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs_pan_api_resinfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs_slist.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\pcs\pcs_utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="JNI_BaiduPCS.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\arg.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dir.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\hashtable.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rb_tree\misc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rb_tree\red_black_tree.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\rb_tree\stack.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utf8.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\utils.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\cJSON.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\pcs.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\pcs_fileinfo.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\pcs_http.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\pcs_mem.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\pcs_pan_api_resinfo.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\pcs_slist.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\pcs\pcs_utils.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
